@@ -344,7 +344,7 @@ public class Menu {
 					int idMatos = sc.nextInt();
 					System.out.println("Indiquez la quantite de ce matï¿½riel ï¿½ supprimer");
 					int qte = sc.nextInt();
-					suppressionMateriel(idMatos, qte);
+					suppressionMateriel(idMatos, qte, false);
 					break;
 				case 4: //Rï¿½server du matï¿½riel
 					int encore2 = 2;
@@ -964,7 +964,7 @@ public class Menu {
 		try{
 			//On rï¿½cupï¿½re tous les stagiaires qui appartiennent au groupe
 			pS = jdbc.getConnection().prepareStatement("SELECT * FROM Appartient_au_groupe WHERE uidGroupe=?");
-			pS.setString(1, String.format("%010d",groupeList.get(numero).getUid()));
+			pS.setString(1, String.format("%010d",groupeList.get(numero-1).getUid()));
 			rS = pS.executeQuery();
 			//Pour chacun de ces stagiaires
 			while(rS.next()){
@@ -986,7 +986,7 @@ public class Menu {
 			}
 			
 			pS = jdbc.getConnection().prepareStatement("SELECT uidSeance FROM Seance WHERE uidGroupe=?");
-			pS.setString(1,String.format("%010d",groupeList.get(numero).getUid()));
+			pS.setString(1,String.format("%010d",groupeList.get(numero-1).getUid()));
 			rS = pS.executeQuery();
 			
 			//On supprime toutes les occurences des sï¿½ances concernï¿½es par ce groupe dans la table Encadre
@@ -998,15 +998,15 @@ public class Menu {
 			
 			//On supprime les sï¿½ances auxquelles le groupe participait
 			pS = jdbc.getConnection().prepareStatement("DELETE FROM Seance WHERE uidGroupe=?");
-			pS.setString(1, String.format("%010d",groupeList.get(numero).getUid()));
+			pS.setString(1, String.format("%010d",groupeList.get(numero-1).getUid()));
 			rS = pS.executeQuery();
 
 			//On supprime le groupe
 			pS = jdbc.getConnection().prepareStatement("DELETE FROM Groupe WHERE uidGroupe=?");
-			pS.setString(1, String.format("%010d",groupeList.get(numero).getUid()));
+			pS.setString(1, String.format("%010d",groupeList.get(numero-1).getUid()));
 			rS = pS.executeQuery();
 			pS = jdbc.getConnection().prepareStatement("DELETE FROM Appartient_au_groupe WHERE uidGroupe=?");
-			pS.setString(1, String.format("%010d",groupeList.get(numero).getUid()));
+			pS.setString(1, String.format("%010d",groupeList.get(numero-1).getUid()));
 			rS = pS.executeQuery();
 		}
 		catch(Exception e){
@@ -1115,7 +1115,7 @@ public class Menu {
 	}
 	
 	//OK
-	public static void suppressionMateriel(int idMatos, int quantite){
+	public static void suppressionMateriel(int idMatos, int quantite, boolean isReservation){
 		//faire la requete magique
 		PreparedStatement pS;
 		ResultSet rS;
@@ -1125,7 +1125,7 @@ public class Menu {
 			rS = pS.executeQuery();
 			rS.next();
 			int nouveauStock = rS.getInt("stock")-quantite;
-			if( nouveauStock <= 0){
+			if( nouveauStock <= 0 && !isReservation){
 				pS = jdbc.getConnection().prepareStatement("DELETE FROM Materiel WHERE uidMateriel=?");
 				pS.setString(1, String.format("%010d",materielList.get(idMatos-1).getUid()));
 				rS = pS.executeQuery();
@@ -1149,13 +1149,15 @@ public class Menu {
 		PreparedStatement pS;
 		ResultSet rS;
 		try{
-			pS = jdbc.getConnection().prepareStatement("INSERT INTO Emprunt_materiel (uidMateriel,uidCentre,uidSeance,uidActivite,quantite) VALUES (?,?,?,?)");
-			pS.setString(1, String.format("%010d",(materielList.get(idMatos).getUid())));
+			pS = jdbc.getConnection().prepareStatement("INSERT INTO Emprunt_materiel (uidMateriel,uidCentre,uidSeance,uidActivite,quantite) VALUES (?,?,?,?,?)");
+			pS.setString(1, String.format("%010d",(materielList.get(idMatos-1).getUid())));
 			pS.setString(2, String.format("%010d", uidCentre));
-			pS.setString(3, Integer.toString(seanceList.get(seance).getNumSeance()));
-			pS.setString(4, Integer.toString(seanceList.get(seance).getActivite()));
+			pS.setString(3, Integer.toString(seanceList.get(seance-1).getNumSeance()));
+			pS.setString(4, Integer.toString(seanceList.get(seance-1).getActivite()));
 			pS.setInt(5, quantite);
 			rS = pS.executeQuery();
+			
+			suppressionMateriel(idMatos,quantite, true);
 			System.out.println("\n[OK] Matï¿½riel rï¿½servï¿½\n");
 		}
 		catch(Exception e){
@@ -1201,12 +1203,15 @@ public class Menu {
 		ResultSet rS;
 		try{			
 			
+			//On récupère toutes les séances encadrées par le moniteur
 			pS = jdbc.getConnection().prepareStatement("SELECT * FROM Encadre WHERE mail=?");
 			pS.setString(1, mail);
 			rS = pS.executeQuery();
+			//Pour chacune de ces séances
 			while(rS.next()){
 				String uidGroupe;	
 				String uidSeance;
+				//On récupère la séance dans la table Seance
 				PreparedStatement pS2 = jdbc.getConnection().prepareStatement("SELECT * FROM Seance WHERE uidSeance=?");
 				pS2.setString(1, rS.getString("uidSeance"));
 				ResultSet rS2 = pS2.executeQuery();
@@ -1214,20 +1219,23 @@ public class Menu {
 				uidSeance = rS2.getString("uidSeance");
 				while(rS2.next()){
 					int nbStagiaire = 0;
+					//On récupere tous les stagiaires qui participatient a cette seance
 					PreparedStatement pS3 = jdbc.getConnection().prepareStatement("SELECT * FROM Appartient_au_groupe WHERE uidGroupe=?");
-					pS3.setString(1, uidGroupe);
+					pS3.setString(1, String.format("%010d", uidGroupe));
 					ResultSet rS3 = pS3.executeQuery();
 					while(rS3.next()){
 						nbStagiaire++;
 					}
+					//On récupere l'activité liée a cette séance pour récupérer la nbmaxparmoniteur
 					pS3 = jdbc.getConnection().prepareStatement("SELECT * FROM Activite WHERE uidActivite=?");
 					pS3.setString(1, rS2.getString("uidActivite"));
 					rS3 = pS3.executeQuery();
 					int nbMaxParMoniteur = rS3.getInt("nbMaxParMoniteur");
 					
 					int nbMoniteurs = 0;
+					//On récupère l'ensemble des moniteurs encadrant la séance
 					pS3 = jdbc.getConnection().prepareStatement("SELECT * FROM Encadre WHERE uidSeance=?");
-					pS3.setString(1, uidSeance);
+					pS3.setString(1, String.format("%010d", uidSeance));
 					rS3 = pS3.executeQuery();
 					while(rS3.next()){
 						nbMoniteurs++;
@@ -1236,10 +1244,10 @@ public class Menu {
 					//Si il n'y a plus assez de moniteur pour encadrer la sï¿½ance, on la supprime
 					if(nbStagiaire/nbMoniteurs > nbMaxParMoniteur){
 						pS3 = jdbc.getConnection().prepareStatement("DELETE FROM Encadre WHERE uidSeance=?");
-						pS3.setString(1, uidSeance);
+						pS3.setString(1, String.format("%010d", uidSeance));
 						rS3 = pS3.executeQuery();
 						pS3 = jdbc.getConnection().prepareStatement("DELETE FROM Seance WHERE uidSeance=?");
-						pS3.setString(1, uidSeance);
+						pS3.setString(1, String.format("%010d", uidSeance));
 						rS3 = pS3.executeQuery();
 					}
 				}
