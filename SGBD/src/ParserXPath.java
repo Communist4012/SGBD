@@ -23,7 +23,6 @@ public class ParserXPath {
 		Object result = expr.evaluate(doc, XPathConstants.NODESET);
 		NodeList nodes = (NodeList) result;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			System.out.println(nodes.item(i).getAttributes().getNamedItem("value"));
 			str.add(nodes.item(i).getAttributes().getNamedItem("value").toString().split("\"")[1].split("\"")[0]);
 		}
 		return str;
@@ -32,6 +31,8 @@ public class ParserXPath {
 
 	public static void main(String[] args) throws Exception {
 		ParserXPath xpath = new ParserXPath();
+		System.out.println(xpath.getInfo().get(0));
 		System.out.println(xpath.getInfo().get(1));
+		System.out.println(xpath.getInfo().get(2));
 	}
 }
