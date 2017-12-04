@@ -18,9 +18,10 @@ public class JDBC {
 		try {
 			str = xpath.getInfo();
 
-			String url = str.get(1);
-			String user = str.get(2);
-			String mdp = str.get(3);
+			String url = str.get(0);
+			String user = str.get(1);
+			String mdp = str.get(2);
+			
 			
 			connection = DriverManager.getConnection(url, user, mdp);
 			connection.setAutoCommit(true);
