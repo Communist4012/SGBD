@@ -59,6 +59,9 @@ INSERT INTO Adresse (uidAdresse,rue,codePostal,ville) VALUES
 ( '0000000017', 'Rue de la pie qui boit', '35400', 'Saint-Malo');
 INSERT INTO Adresse (uidAdresse,rue,codePostal,ville) VALUES
 ( '0000000018', 'Rue du vide', '08080', 'Trou noir');
+INSERT INTO Adresse (uidAdresse,numero,rue,codePostal,ville) VALUES
+( '0000000019','10', 'Rue du test', '10101', 'test/PLS');
+
 
 CREATE TABLE Centre(
     uidCentre CHAR(10),
@@ -185,6 +188,7 @@ CREATE TABLE Personne(
     CONSTRAINT pk_Personne PRIMARY KEY(mail),
     CONSTRAINT fk_Personne_uidAdr FOREIGN KEY(uidAdresse) REFERENCES Adresse(uidAdresse)
 );
+
 INSERT INTO Personne (mail,uidAdresse,nom,prenom,dateNaissance,tel) VALUES
 ('patouargent45@fric.com','0000000004','Argent','Patrick',to_date('13-09-1943','DD-MM-YYYY'),'0145886575');
 INSERT INTO Personne (mail,uidAdresse,nom,prenom,dateNaissance,tel) VALUES
@@ -231,13 +235,17 @@ INSERT INTO Personne (mail,uidAdresse,nom,prenom,dateNaissance,tel) VALUES
 INSERT INTO Personne (mail,uidAdresse,nom,prenom,dateNaissance,tel) VALUES
 ('ikuttuppa-4958@yopmail.com','0000000015','Némard','Jean',to_date('10-12-1910','DD-MM-YYYY'),'4681895616');
 
-
+INSERT INTO Personne (mail,uidAdresse,nom,prenom,dateNaissance,tel) VALUES
+('testStagiaire@test.test','0000000019','Test','Stagiaire',to_date('10-12-1910','DD-MM-YYYY'),'1010101010');
 
 CREATE TABLE Stagiaire(
     mail VARCHAR2(100),
     CONSTRAINT pk_Stagiaire PRIMARY KEY(mail),
     CONSTRAINT fk_Stagiaire_mail FOREIGN KEY (mail) REFERENCES Personne(mail)
 );
+
+INSERT INTO Stagiaire(mail) VALUES
+('testStagiaire@test.test');
 
 CREATE TABLE Badge(
     uidBadge CHAR(10),

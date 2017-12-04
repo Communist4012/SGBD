@@ -1128,14 +1128,12 @@ public class Menu {
 			if( nouveauStock <= 0 && !isReservation){
 				pS = jdbc.getConnection().prepareStatement("DELETE FROM Materiel WHERE uidMateriel=?");
 				pS.setString(1, String.format("%010d",materielList.get(idMatos-1).getUid()));
-				System.out.println("2");
 				rS = pS.executeQuery();
 			}
 			else{
 				pS = jdbc.getConnection().prepareStatement("UPDATE Materiel SET stock=? WHERE uidMateriel=?");
 				pS.setInt(1, nouveauStock);
 				pS.setString(2, String.format("%010d",materielList.get(idMatos-1).getUid()));
-				System.out.println("2");
 				rS = pS.executeQuery();
 			}
 			System.out.println("\n[OK] Mat�riel supprim�\n");
