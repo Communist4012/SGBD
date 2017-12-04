@@ -1100,16 +1100,17 @@ public class Menu {
 			pS = jdbc.getConnection().prepareStatement("SELECT stock FROM Materiel WHERE uidMateriel=?");
 			pS.setString(1, String.format("%010d",materielList.get(num-1).getUid()));
 			rS = pS.executeQuery();
+			rS.next();
 			int stock = rS.getInt("stock");
 			stock+=qte;
 			pS = jdbc.getConnection().prepareStatement("UPDATE Materiel SET stock=? WHERE uidMateriel=?");
 			pS.setInt(1, stock);
 			pS.setString(2, String.format("%010d",materielList.get(num-1).getUid()));
-			rS = pS.executeQuery();
+			pS.executeQuery();
 			System.out.println("\n[OK] Mat�riel ajout�\n");
 		}
 		catch(Exception e){
-			
+			e.printStackTrace();
 		}
 	}
 	
