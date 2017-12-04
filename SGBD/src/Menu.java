@@ -1128,12 +1128,14 @@ public class Menu {
 			if( nouveauStock <= 0 && !isReservation){
 				pS = jdbc.getConnection().prepareStatement("DELETE FROM Materiel WHERE uidMateriel=?");
 				pS.setString(1, String.format("%010d",materielList.get(idMatos-1).getUid()));
+				System.out.println("2");
 				rS = pS.executeQuery();
 			}
 			else{
 				pS = jdbc.getConnection().prepareStatement("UPDATE Materiel SET stock=? WHERE uidMateriel=?");
 				pS.setInt(1, nouveauStock);
 				pS.setString(2, String.format("%010d",materielList.get(idMatos-1).getUid()));
+				System.out.println("2");
 				rS = pS.executeQuery();
 			}
 			System.out.println("\n[OK] Matï¿½riel supprimï¿½\n");
@@ -1203,15 +1205,15 @@ public class Menu {
 		ResultSet rS;
 		try{			
 			
-			//On récupère toutes les séances encadrées par le moniteur
+			//On rï¿½cupï¿½re toutes les sï¿½ances encadrï¿½es par le moniteur
 			pS = jdbc.getConnection().prepareStatement("SELECT * FROM Encadre WHERE mail=?");
 			pS.setString(1, mail);
 			rS = pS.executeQuery();
-			//Pour chacune de ces séances
+			//Pour chacune de ces sï¿½ances
 			while(rS.next()){
 				String uidGroupe;	
 				String uidSeance;
-				//On récupère la séance dans la table Seance
+				//On rï¿½cupï¿½re la sï¿½ance dans la table Seance
 				PreparedStatement pS2 = jdbc.getConnection().prepareStatement("SELECT * FROM Seance WHERE uidSeance=?");
 				pS2.setString(1, rS.getString("uidSeance"));
 				ResultSet rS2 = pS2.executeQuery();
@@ -1219,21 +1221,21 @@ public class Menu {
 				uidSeance = rS2.getString("uidSeance");
 				while(rS2.next()){
 					int nbStagiaire = 0;
-					//On récupere tous les stagiaires qui participatient a cette seance
+					//On rï¿½cupere tous les stagiaires qui participatient a cette seance
 					PreparedStatement pS3 = jdbc.getConnection().prepareStatement("SELECT * FROM Appartient_au_groupe WHERE uidGroupe=?");
 					pS3.setString(1, String.format("%010d", uidGroupe));
 					ResultSet rS3 = pS3.executeQuery();
 					while(rS3.next()){
 						nbStagiaire++;
 					}
-					//On récupere l'activité liée a cette séance pour récupérer la nbmaxparmoniteur
+					//On rï¿½cupere l'activitï¿½ liï¿½e a cette sï¿½ance pour rï¿½cupï¿½rer la nbmaxparmoniteur
 					pS3 = jdbc.getConnection().prepareStatement("SELECT * FROM Activite WHERE uidActivite=?");
 					pS3.setString(1, rS2.getString("uidActivite"));
 					rS3 = pS3.executeQuery();
 					int nbMaxParMoniteur = rS3.getInt("nbMaxParMoniteur");
 					
 					int nbMoniteurs = 0;
-					//On récupère l'ensemble des moniteurs encadrant la séance
+					//On rï¿½cupï¿½re l'ensemble des moniteurs encadrant la sï¿½ance
 					pS3 = jdbc.getConnection().prepareStatement("SELECT * FROM Encadre WHERE uidSeance=?");
 					pS3.setString(1, String.format("%010d", uidSeance));
 					rS3 = pS3.executeQuery();
