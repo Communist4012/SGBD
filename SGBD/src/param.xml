@@ -1,0 +1,5 @@
+<VLV>
+	<Parameter name="database.url" value="jdbc:oracle:thin:@//localhost:1521/xe" />
+	<Parameter name="database.user" value="timothee" />
+	<Parameter name="database.password" value="root" />
+</VLV>
